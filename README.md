@@ -1,2 +1,4 @@
 # R-scripts-for-graphs
-Some simple R scripts made for generating graphs
+A collection of simple scripts that I used to generate graphs using ggplot2 in R
+
+Scripts for barplots and scatterplots only
