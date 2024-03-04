@@ -1,3 +1,6 @@
+library(ggplot2)
+library(ggpmisc)
+library(ggppmisc)
 pdata = read.csv("Data.csv")
 p = ggplot(pdata, aes(x=Concentration, y=Absorbance)) + geom_point() + geom_smooth(method = "lm", se=FALSE)
 p = p + ggtitle("Standard Curve of Paracetamol") + xlab("Concentration (mg/ml)") + ylab("Absorbance")
