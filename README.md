@@ -1,2 +1,2 @@
 # R-scripts-for-graphs
-A collection of simple scripts that I used to generate graphs using ggplot2 for college projects
+A collection of scripts used for geenrating graphs in R using ggplot2 package
