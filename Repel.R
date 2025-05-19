@@ -1,6 +1,10 @@
 library(gglot2)
 library(ggrepel)
+
+datad = read.csv("Kimura.csv")
+
 p = ggplot(datad) + geom_point(aes(divergence, kval, color=Pair1))
 p = p + ylab("Kimura-2A values") + xlab("Divergence time (Mya)") + theme_bw() + labs(color="Organism") 
 p = p + geom_label_repel(aes(divergence, pval, label = Pair2, colour = Pair1), max.overlaps=25, nudge_x = -0.9, nudge_y = 0.03)
+
 print(p)
