@@ -1,3 +1,6 @@
+library(ggplot2)
+
+datad = read.csv("Past.csv")
 ggplot(datad, aes(x = Yr, y = Value)) + geom_point(aes(color=Type)) + 
   geom_line(aes(color=Type)) + xlab("Year") + labs(title = "Changes in Global Carbon dioxide Concentration and Temperature in past 65  years ") +
   labs(y = "") +
