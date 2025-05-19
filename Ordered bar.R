@@ -3,7 +3,9 @@ library(ggpmisc)
 library(dplyr)
 library(matrixStats)
 library(ggthemes)
+
 datad = read.csv("WST.csv")
+
 newdata2 = datad %>% 
   select(Sample, Well1, Well2, Well3, order) %>%
   mutate(Absorb = rowMeans(datad[c("Well1", "Well2", "Well3")])) %>%
