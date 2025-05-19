@@ -1,6 +1,8 @@
 library(ggplot2)
 library(nls2)
+
 datad = read.csv("Bradford.csv")
+
 p = ggplot(datad, aes(x = Sample, y = A)) + geom_point(aes(color=Type))
 p = p + xlab("Concentration of Protein (mg/ml)") + ylab("Absorbance (595 nm)") + ggtitle("Bradford Assay") 
 p = p + scale_y_continuous(expand = c(0.1, 0.1)) + facet_grid(Type ~ ., scales = "free_y") 
