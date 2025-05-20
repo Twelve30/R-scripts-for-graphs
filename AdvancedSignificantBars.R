@@ -76,5 +76,6 @@ p = p + geom_signif(
 
 p = p + xlab("Venom:Plant Extract 1:100") + ylab("Percent Inhibition") + ggtitle("PLA2 Assay")
 p = p + theme_few() + theme(legend.position = "none", axis.text.x = element_text(angle = 45, vjust = 1.1, hjust=1))
+
 print(p)
 ggsave("Protease.svg", width = 16.31, height = 15.27, units = "cm")
