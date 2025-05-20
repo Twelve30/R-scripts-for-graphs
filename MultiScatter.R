@@ -25,7 +25,9 @@ achectext = paste0("EC50 ==", achec)
 p = ggplot(datad, aes(x=dose)) +
   geom_point(aes(y=Ach), color="red") + geom_smooth(aes(y=Ach), method="nls", formula = y ~ SSlogis(x, Aysm, xmid, scal), color="red", se=FALSE) +
   geom_point(aes(y=AchR), color="blue") + stat_smooth(aes(y=AchR), method="nls", formula = y ~ SSlogis(x, Aysm, xmid, scal), se=FALSE, color="blue")
+
 p = p + xlab("log(Dose)") + ylab("% Response") + theme_few()
+
 p = p + 
   annotate("text", x = -Inf, y = Inf, label = achectext, parse = TRUE, color = "red", size = 3.5, vjust = 2.8, hjust = -1.8) +
   annotate("text", x = -Inf, y = Inf, label = achrectext, parse = TRUE, color = "blue", size = 3.5, vjust = 7.2, hjust = -1.8) +
