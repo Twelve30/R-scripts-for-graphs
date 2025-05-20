@@ -63,6 +63,7 @@ p = ggplot(newdata2, aes(x = reorder(Sample, order))) + geom_errorbar(aes(y = Ab
 p = p + geom_point(aes(y = Well1), position = position_nudge(x = 0.1), shape = 17, size = 0.5) +
   geom_point(aes(y = Well2), position = position_nudge(x = -0.1), shape = 17, size = 0.5) +
   geom_point(aes(y = Well3), position = position_nudge(x = -0.1), shape = 17, size = 0.5)
+
 p = p + geom_text(aes(y = Absorb + error, label = tAbsorb), size = 2.5, vjust = -0.75)
 
 p = p + geom_signif(
