@@ -32,9 +32,9 @@ sig = sig %>%
     group1 = Sample,
     group2 = "EA",
     signif_label = case_when(
-      pval < 0.001 ~ "***",
-      pval < 0.01 ~ "**",
-      pval < 0.05 ~ "*",
+      pval < 0.001 ~ "p < 0.001",
+      pval < 0.01 ~ "p < 0.01",
+      pval < 0.05 ~ "p < 0.5",
       TRUE ~ "ns"
     )
   ) %>%
