@@ -4,78 +4,98 @@ library(dplyr)
 library(matrixStats)
 library(ggthemes)
 library(ggsignif)
+library(extrafont)
+library(ggtext)
 
-datad = read.csv("WST.csv")
+loadfonts(device = "win")
 
-newdata2 = datad%>%
-  mutate(Absorb = rowMeans(datad[c("Well1", "Well2", "Well3")])) %>%
-  mutate(deviation = rowSds(as.matrix(datad[c("Well1", "Well2", "Well3")])))
-newdata2 = newdata2 %>%
-  mutate(error = deviation/sqrt(3)) %>%
-  mutate(tAbsorb = round(Absorb, digits = 1))
+datad = read.csv("Luciferase 191225.csv")
+
+newdata = datad # %>%
+# mutate(nor1 = (F1/R1)) %>% mutate(nor2 = (F2/R2)) %>% mutate(nor3 = (F3/R3))
+newdata2 = newdata %>%
+  mutate(avgread = rowMeans(newdata[c("F1", "F2", "F3")])) %>%
+  mutate(deviation = rowSds(as.matrix(newdata[c("F1", "F2", "F3")]))) %>%
+ filter(!grepl("UT", Sample))
 
 pairs = newdata2 %>%
-  filter(!grepl("Control|No venom|Venom only", Sample)) %>%
-  mutate(Control = paste0(Sample, " Control"))
+  filter(!grepl("UT|mut", Sample)) %>%
+  mutate(moredna = paste0(Sample, " mut"))
+
 
 tres = pairs %>%
   rowwise() %>%
   mutate(
     sample_name = Sample,
-    control_name = Control,
-    
+    control_name = moredna,
+
     tvals = list(
       newdata2 %>%
         filter(Sample == sample_name) %>%
-        select(Well1, Well2, Well3) %>%
+        select(F1, F2, F3) %>%
         unlist(use.names = FALSE)
     ),
-    
+
     cvals = list(
       newdata2 %>%
         filter(Sample == control_name) %>%
-        select(Well1, Well2, Well3) %>%
+        select(F1, F2, F3) %>%
         unlist(use.names = FALSE)
     )
   ) %>%
   ungroup()
 
-tres = tres %>%
-  mutate(pval = t.test(tvals[[1]], cvals[[1]])$p.value)
+val = 1
+pval = numeric()
+ 
+ymax = max(newdata2$avgread + newdata2$deviation, na.rm = TRUE)
+ 
+pval <- numeric(length(tres$tvals))
 
-
-max_y = max(newdata2$Absorb + newdata2$error)
+for (i in seq_along(tres$tvals)) {
+  pval[i] <- t.test(
+    tres$tvals[[i]],
+    tres$cvals[[i]],
+    var.equal = TRUE
+  )$p.value
+}
+ 
+ 
+#max_y = max(newdata2$avgread + newdata2$deviation + 3000)
 tres = tres %>%
   mutate(
-    y.position = max_y + row_number(),
     group1 = Sample,
-    group2 = Control,
+    group2 = moredna,
     signif_label = case_when(
-      pval < 0.001 ~ "***",
-      pval < 0.01 ~ "**",
-      pval < 0.05 ~ "*",
+      pval < 0.05 ~ paste0("p = ", formatC(pval, format = "f", digits = 4)),
       TRUE ~ "ns"
     )
   ) %>%
-  filter(signif_label != "ns")
+filter(signif_label != "ns")
 
-p = ggplot(newdata2, aes(x = reorder(Sample, order))) + geom_errorbar(aes(y = Absorb, ymin = Absorb - error, ymax = Absorb + error), width = 0.15) + geom_col(aes(y = Absorb, color=Sample), width = 0.5, fill = NA)
-p = p + geom_point(aes(y = Well1), position = position_nudge(x = 0.1), shape = 17, size = 0.5) +
-  geom_point(aes(y = Well2), position = position_nudge(x = -0.1), shape = 17, size = 0.5) +
-  geom_point(aes(y = Well3), position = position_nudge(x = -0.1), shape = 17, size = 0.5)
-
-p = p + geom_text(aes(y = Absorb + error, label = tAbsorb), size = 2.5, vjust = -0.75)
+p = ggplot(newdata2, aes(x = reorder(Sample, order))) +
+  geom_errorbar(aes(y = avgread, ymin = avgread - deviation, ymax = avgread + deviation), width = 0.15) +
+  geom_col(aes(y = avgread, color=Sample), width = 0.5, fill = NA) +
+  scale_color_manual(values = c("rrl" = "black","rrl mut" = "#ff0066","wge" = "#108081", "wge mut" = "#400080"))
+p = p + geom_point(aes(y = F1), position = position_nudge(x = 0.1), shape = 17, size = 1.5) +
+  geom_point(aes(y = F2), position = position_nudge(x = -0.1), shape = 17, size = 1.5) +
+  geom_point(aes(y = F3), position = position_nudge(x = -0.15), shape = 17, size = 1.5)
 
 p = p + geom_signif(
   data = tres,
-  aes(xmin = group1, xmax = group2, annotations = signif_label, y_position = y.position, colour = Sample),
+  aes(xmin = group1, xmax = group2, annotations = signif_label, y_position = (avgread + deviation + 5000)),
   manual = TRUE,
+  color="black",
   tip_length = 0,
   textsize = 3
 )
 
-p = p + xlab("Venom:Plant Extract 1:100") + ylab("Percent Inhibition") + ggtitle("PLA2 Assay")
-p = p + theme_few() + theme(legend.position = "none", axis.text.x = element_text(angle = 45, vjust = 1.1, hjust=1))
-
+p = p + xlab("Construct") + ylab("Luciferase activity") + ggtitle("*In vitro* translation") + 
+  scale_y_continuous(expand = expansion(mult = c(0, 0.25)), labels = scales::label_number(big.mark = ""))
+p = p + theme_few() + theme(legend.position = "none") + 
+  scale_x_discrete(limits = c("rrl", "rrl mut", "wge", "wge mut"),
+                   labels = c(paste("*HBB*-*FLuc* <br> Rabbit <br> reticulocyte <br> lysate"), paste("*HBB*-E6V-*FLuc* <br> Rabbit <br> reticulocyte <br> lysate"), paste("*HBB*-*FLuc* <br> Wheat <br> germ <br> extract"), paste("*HBB*-E6V-*FLuc* <br> Wheat <br> germ <br> extract")))
+p = p + theme(text=element_text(family="Times New Roman"), axis.text.x = ggtext::element_markdown(), plot.title = ggtext::element_markdown())
 print(p)
-ggsave("Protease.svg", width = 16.31, height = 15.27, units = "cm")
+ggsave("Luciferase 191225.svg", width = 12.31, height = 15.27, units = "cm")
+#ggsave("Dual Luciferase 131025.pdf", width = 15.31, height = 15.27, units = "cm")
