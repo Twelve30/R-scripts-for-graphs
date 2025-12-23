@@ -14,3 +14,7 @@ ggrepel: Addition of text labels
 ggthemes: Additional themes
 
 ggsignif: Adding bars showing the significance values by performing t-tests 
+
+extrafont: Fonts
+
+ggtext: Text formatting in graphs
